@@ -1,0 +1,47 @@
+﻿@model VideoLibraryBusinessLayer.Video
+
+@{
+    ViewBag.Title = "Favorites";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Favorites</h2>
+
+@Html.Partial("FavoritesList")
+
+<div id="favoritestable"></div>
+
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+<script>
+    var storedList = JSON.parse(localStorage.getItem("favorites"));
+    var favListJson = { favListJson: storedList };
+
+    $.ajax({
+        type: "POST",
+        url: "@Url.Action("RenderFavList", "Home")",
+        data: favListJson,
+        dataType: 'json',
+        success: successFunc,
+        error: errorFunc
+    });
+
+    function successFunc(data, status) {
+        var length = data.length;
+        for (var i = 0; i < length; i++) {
+            var tr = $('<tr></tr>');
+            $('<td><a href="/Details/'+data[i].VideoId+'">' + data[i].Title + '</a></td>').appendTo(tr);
+            $('<td>' + data[i].Year + '</td>').appendTo(tr);
+            $('<td>' + data[i].Director + '</td>').appendTo(tr);
+            tr.appendTo('#resultsTable');
+        }
+
+        }
+
+    function errorFunc(jqXHR, textStatus, errorThrown){
+        alert(textStatus);
+    }
+</script>
+

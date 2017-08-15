@@ -1,0 +1,25 @@
+﻿body {
+    padding-top: 50px;
+}
+#poster {
+    display: block;
+    margin: auto;
+    padding-top: 25px;
+    max-width: 60%;
+    max-height: 60%;
+
+}
+
+#valwarning {
+    color:#d83c3c;
+}
+
+#loading-image-release, #loading-image-director, #loading-image-plot {
+    max-height: 15%;
+    max-width: 15%;
+}
+
+#detailsheader {
+    float:left;
+    vertical-align:middle;
+}

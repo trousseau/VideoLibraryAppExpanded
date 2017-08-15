@@ -1,0 +1,119 @@
+﻿@model VideoLibraryBusinessLayer.Video
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="row">
+            <h1 id="detailsheader"><b>@Model.Title</b></h1>
+            <button id="favoritebutton" style="float:right; position:relative; top:20px; " type="button" class="btn btn-danger" onclick="addToFavorites(@Model.VideoId)"><span id="favoritebutton" class="glyphicon glyphicon-heart-empty"></span> Add to Favorites</button>
+            <button class="btn btn-default" style="float:right; position:relative; top:20px; display:none" id="removefavbutton" onclick="removeFromFavorites(@Model.VideoId)">Remove From Favorites</button>
+        </div>
+
+        <table class="table">
+            <tr>
+                <td>Title</td>
+                <td>@Model.Title</td>
+            </tr>
+            <tr>
+                <td>Release Date</td>
+                <td id="releasedate"><img id="loading-image-release" src="~/Content/loading.gif" alt="Loading..." /></td>
+            </tr>
+            <tr>
+                <td>Director</td>
+                <td id="director"><img id="loading-image-director" src="~/Content/loading.gif" alt="Loading..." /></td>
+            </tr>
+        </table>
+
+        <h3>Average Rating: @Model.Rating</h3>
+
+        <h3>Plot</h3>
+        <p id="plot"><img id="loading-image-plot" src="~/Content/loading.gif" alt="Loading..." /></p>
+
+        <h3>Reviews</h3>
+        <table class="table">
+            @if (Model.Reviews != null)
+            {
+                foreach (var review in Model.Reviews)
+                {
+                    <tr>
+                        <td>
+                            @review.UserName
+                        </td>
+                        <td>
+                            @review.ReviewText
+                        </td>
+
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td>None</td>
+                </tr>
+            }
+        </table>
+    </div>
+    <div id="posterdiv" class="col-sm-6">
+        <img id="poster" class="img-responsive" src="@Model.PosterUrl" alt="Movie Poster" />
+    </div>
+</div>
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+<script>
+    var $loader = $('#loading-image');
+    var titleInit = "@Model.Title";
+    var title = titleInit.replace(' ','+').toLowerCase();
+    var year = @Model.Year;
+
+    updateFavButton();
+
+    $.ajax({
+        url: 'http://www.myapifilms.com/imdb/idIMDB?title='+title+'&year='+year+'&token=15220cc7-e17a-4892-8e2a-1f49307db31d&format=json&language=en-us',
+        dataType: 'jsonp',
+        success: function (result) {
+            $(document).ready(function() {
+                var relDateUnformatted = result.data.movies[0].releaseDate;
+                var year = relDateUnformatted.substring(0,4);
+                var month = relDateUnformatted.substring(4,6);
+                var day = relDateUnformatted.substring(6,8);
+                var formattedDate = month + '/' + day + '/' + year;
+
+                $('#releasedate').append(formattedDate);
+                $('#director').append(result.data.movies[0].directors[0].name);
+                $('#plot').append(result.data.movies[0].plot);
+            });
+        },
+        beforeSend : function(){
+            $("#loading-image-release").show();
+            $("#loading-image-director").show();
+            $("#loading-image-plot").show();
+        },
+        complete : function(){
+            $("#loading-image-release").hide();
+            $("#loading-image-director").hide();
+            $("#loading-image-plot").hide();
+        }
+    });
+
+    function updateFavButton() {
+        if (favoritesContains(@Model.VideoId)) {
+            $(document).ready(function() {
+                $("#favoritebutton").hide();
+                $("#removefavbutton").show();
+            })
+        }
+        else {
+            $(document).ready(function() {
+                $("#favoritebutton").show();
+                $("#removefavbutton").hide();
+            })
+        }
+    }
+</script>
